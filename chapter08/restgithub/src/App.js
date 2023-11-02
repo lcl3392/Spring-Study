@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import './App.css';
+import {AgGridReact} from 'ag-grid-react';
+import 'ag-grid-community/styles/ag-grid.css';
+import 'ag-grid-community/styles/ag-theme-material.css';
+
 
 function App() {
   const [keyword, setKeyword] = useState('');     //검색어를 저장하는 상태 변수
@@ -13,26 +17,35 @@ function App() {
     .catch(err => console.error(err))    //API 호출이 실패하면, err
   }
 
+  const Columns = [
+    {field: 'full_name' , sortable: true, filter: true},
+    {field: 'html_url', sortable: true, filter: true},
+    {field: 'owner.login',sortable: true, filter: true},
+    
+    //버튼을 누르면 full_name 셀의 값을 보여주는 alert 창을 표시한다. 
+    {
+      field: 'full_name.Message',
+      cellRenderer: params =>
+      <button 
+      onClick={()=> alert(params.value)}>
+      Press me 
+      </button>
+    }
+  ]
+
   return (
     <div className="App">
       <input value={keyword} 
         onChange={e => setKeyword(e.target.value)} />
       <button onClick={fetchData}>Fetch</button>
-      <table style={{margin: 'auto'}}>
-        <tbody>
-          {/* data 배열에 있는 각 저장소에 대해 반복하며, 각 저장소의 이름과 HTML URL을 <tr> 요소로 표시 */}
-          {
-            data.map(repo => 
-              <tr key={repo.id}>
-                <td>{repo.full_name}</td>
-                <td>
-                  <a href={repo.html_url}>{repo.html_url}</a>
-                </td>
-              </tr>  
-            )
-          }
-        </tbody>
-      </table>
+      <div className='ag-theme-material' style={{height: 500, width: '50%'}}>
+        <AgGridReact
+        rowData={data}
+        columnDefs={Columns}
+        pagination={true}
+        paginationPageSize={8}
+        />
+      </div>
     </div>
   );
 }
